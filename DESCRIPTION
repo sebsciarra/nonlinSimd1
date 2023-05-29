@@ -8,7 +8,7 @@ Description: Evaluates structured latent growth curve models under a variety of 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/sebsciarra/nonlinSimds,
+URL: https://github.com/sebsciarra/nonlinSimds, 
 BugReports: https://github.com/sebsciarra/nonlinSimds/issues
 RoxygenNote: 7.2.3
 Suggests: 
