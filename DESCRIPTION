@@ -1,4 +1,4 @@
-Package: nonlinSIms
+Package: nonlinSims
 Type: Package
 Title: Simulations to evaluate structured latent growth curve models
 Version: 0.1.0
