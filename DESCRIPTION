@@ -1,0 +1,23 @@
+Package: nonlinSims
+Title: What the Package Does (One Line, Title Case)
+Author: Sebastian Sciarra 
+Maintainer: <seb@sciarra.io>
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Imports: 
+  data.table, 
+  OpenMx,
+  snowfall, 
+  parallel, 
+  progress, 
+  purrr
+VignetteBuilder: knitr
+Config/testthat/edition: 3

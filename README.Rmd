@@ -1,0 +1,105 @@
+---
+output: github_document
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# nonlinSims
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of nonlinSims is to evaluate the performance of structured latent growth curve models under a variety of conditions. Briefly, structured latent growth curve models allow nonlinear patterns of change to be modelled using functions with meaningful parameter interpretations. For a technical review of structured latent growth curve models, see [Appendix B](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y#page=271) in my dissertation. Using `nonlinSims`,  the following variables can be manipulated in evaluating the model performance of structured latent growth curve models: 
+
+1) Nature of change (for an explanation, see [this section on nature of change](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y#page=59) of my dissertation)
+2) Number of measurements 
+3) Measurement spacing (equal, time-interval increasing, time-interval decreasing, middle-and-extrme spacing; for an explanation, see [Appendix C](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y#page=259) of my dissertation)
+4) Sample size 
+5) Time structuredness (for an explanation, see [this explanation of time structuredness](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y#page=155) and [this explanation of how it was simulated](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y#page=162) in my dissertation)
+
+In the sections that follow, I will provide an overview of the installation and how to use `nonlinSims`. 
+
+
+## 1) Installation
+
+You can install the development version of nonlinSims using
+
+``` r
+# install.packages("devtools")
+devtools::install_github("sciarraseb/nonlinSims")
+```
+
+## 2) Using nonlinSims
+
+To use `nonlinSims`, you must first set values for the following parameters and variables (for an explanation, see [this section](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y#page=50] of my dissertation):  
+
+1) Fixed- and random effect baseline parameter ($\theta_{fixed}$, $\theta_{random}$)
+2) Fixed- and random effect maximal elevation parameter ($\alpha_{fixed}$, $\alpha_{random}$)
+3) Fixed- and random effect days-to-halfway elevation parameter ($\beta_{fixed}$, $\beta_{random}$)
+4) Fixed- and random effect triquarter-halfway delta parameter ($\gamma_{fixed}$, $\gamma_{random}$)
+5) Period of time over which change occurs
+
+The independent variables for the experiment can then be specified in a list along with other simulation parameters (i.e, seed value and number of cores for parallel processing). 
+
+
+```{r using-nonlinSims, eval=F}
+
+library(easypackages)
+packages <- c('devtools', 'nonlinSims', 'parallel', 'tidyverse', "OpenMx", "data.table", 'progress', 'tictoc')
+libraries(packages)
+
+time_period <- 360
+
+#Population values for parameters 
+#fixed effects
+sd_scale <- 1
+common_effect_size <- 0.32
+theta_fixed <- 3
+alpha_fixed <- theta_fixed + common_effect_size
+beta_fixed <- 180
+gamma_fixed <- 20
+
+#random effects 
+sd_theta <- 0.05
+sd_alpha <- 0.05
+sd_beta <- 10
+sd_gamma <- 4
+sd_error <- 0.05
+
+#List containing population parameter values
+pop_params_4l <- generate_four_param_pop_curve(
+  theta_fixed =  theta_fixed, alpha_fixed = alpha_fixed, 
+   beta_fixed = beta_fixed, gamma_fixed = gamma_fixed, 
+   sd_theta = sd_theta, sd_alpha = sd_alpha, 
+   sd_beta = sd_beta, sd_gamma = sd_gamma, sd_error = sd_error
+
+
+
+num_iterations <- 1e3 #n=1000 (cell size)
+seed <- 27 #ensures replicability 
+
+# Experiment 1 (number measurements,  spacing, midpoint) --------
+factor_list_exp_1 <- list('num_measurements' = seq(from = 5, to = 11, by = 2), 
+                          'time_structuredness' = c('time_structured'),
+                          'spacing' = c('equal', 'time_inc', 'time_dec', 'mid_ext'), 
+                          'midpoint' = c(80, 180, 280),  
+                          'sample_size' = c(225))
+
+tic()
+exp_1_data <- run_exp_simulation(factor_list = factor_list_exp_1, num_iterations = num_iterations, pop_params = pop_params_4l, 
+                                 num_cores = detectCores()-1, seed = seed)
+toc()
+
+#Average computation time is 1 iteration per second. As an example, Experiment has 48 cells x 1000 iterations/cell = 48 000 iterations and seconds/3600s/hour ~ 13.33 hours (simulations computed with 15 cores)
+write_csv(x = exp_1_data, file = '~/Desktop/exp_1_data.csv')
+
+
+```
